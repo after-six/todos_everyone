@@ -8,6 +8,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
     List<String> aaaa = ["blablalbla","blablalbla","blablalbla","blablalbla","blablalbla","blablalbla","blablalbla","blablalbla","blablalbla",]
     return MaterialApp(
       title: 'Flutter Demo',
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
             TodoTextField(),
             Expanded(
               child: ListView(
+                // TODO 이 하드코딩 된 부분을 리스트 빌더를 이용하여 예쁘게 하세요.
                 children: <Widget>[
                   ListTile(
                     title: Text("blablalbla"),
