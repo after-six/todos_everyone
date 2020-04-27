@@ -8,8 +8,31 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
-    List<String> aaaa = ["blablalbla","blablalbla","blablalbla","blablalbla","blablalbla","blablalbla","blablalbla","blablalbla","blablalbla",]
+    List<String> aaaa = [
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+      "blablalbla",
+    ];
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -20,52 +43,11 @@ class MyApp extends StatelessWidget {
           children: <Widget>[
             TodoTextField(),
             Expanded(
-              child: ListView(
-                // TODO 이 하드코딩 된 부분을 리스트 빌더를 이용하여 예쁘게 하세요.
-                children: <Widget>[
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("blablalbla"),
-                  ),
-                  ListTile(
-                    title: Text("This is end"),
-                  ),
-                ],
+              child: ListView.builder(
+                itemCount: aaaa.length,
+                itemBuilder: (context, index) {
+                  return ListTile(title: Text(aaaa[index]));
+                },
               ),
             )
           ],
@@ -94,10 +76,9 @@ class TodoTextField extends StatelessWidget {
             child: TextField(
               maxLength: 25,
               decoration: InputDecoration(
-                counterStyle: TextStyle(fontSize: 0),
-                hintText: "What do you gonna do?",
-                border: InputBorder.none
-              ),
+                  counterStyle: TextStyle(fontSize: 0),
+                  hintText: "What do you gonna do?",
+                  border: InputBorder.none),
             ),
           ),
           Flexible(
