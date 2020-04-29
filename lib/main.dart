@@ -19,20 +19,32 @@ class TodoState extends State<TodoListWidget> {
 
   TextField _textField;
 
+  String _newItemText = "";
+
+  void insert() {
+    if(_newItemText.isEmpty) return;
+
+    todoItems.insert(0, _newItemText);
+    setState((){
+      _textController.clear();
+      _newItemText = "";
+    });
+  }
+
+  void remove(int index) {
+    todoItems.removeAt(index);
+    setState((){});
+  }
+
   @override
   Widget build(BuildContext context) {
     _textField = TextField(
+      onChanged: (text) => setState(() => {_newItemText = text}),
       maxLength: 25,
       controller: _textController,
-      onSubmitted: (text) {
-        _textController.clear();
-        setState(() {
-          todoItems.insert(0, text);
-        });
-      },
+      onSubmitted: (text) => insert(),
       decoration: InputDecoration(counterStyle: TextStyle(fontSize: 0), hintText: "What do you gonna do?", border: InputBorder.none),
     );
-
 
     return Scaffold(
       appBar: AppBar(title: Text("After todo")),
@@ -45,19 +57,11 @@ class TodoState extends State<TodoListWidget> {
             ),
             child: Row(
               children: <Widget>[
-                Flexible(
-                  flex: 9,
-                  child: _textField
-                ),
+                Flexible(flex: 9, child: _textField),
                 Flexible(
                   flex: 1,
                   child: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        todoItems.insert(0, _textController.text);
-                      });
-                      _textController.clear();
-                    },
+                    onPressed: insert,
                     icon: Icon(
                       Icons.send,
                       color: Colors.red,
@@ -71,12 +75,10 @@ class TodoState extends State<TodoListWidget> {
             child: ListView.builder(
               itemCount: todoItems.length,
               itemBuilder: (context, index) {
-                return ListTile(title: Text(todoItems[index]), onTap: () {
-                  print(index);
-                  setState(() {
-                    todoItems.removeAt(index);
-                  });
-                });
+                return ListTile(
+                  title: Text(todoItems[index]),
+                  onTap: () => remove(index),
+                );
               },
             ),
           )
