@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import 'models/todo.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,7 +18,9 @@ class MyApp extends StatelessWidget {
 }
 
 class TodoState extends State<TodoListWidget> {
-  List<String> todoItems = ["abababab", "blablalbla", "ababrbrb", "blablalbla", "rstbrstbrstbrstbrstb", "blablbrststbalbla", "blablalbla"];
+  List<String> todoItems = [];
+
+  List<Todo> todos = List();
 
   TextEditingController _textController = TextEditingController();
 
@@ -21,19 +28,86 @@ class TodoState extends State<TodoListWidget> {
 
   String _newItemText = "";
 
-  void insert() {
-    if(_newItemText.isEmpty) return;
+  Future<Todo> futureTodo;
 
-    todoItems.insert(0, _newItemText);
-    setState((){
-      _textController.clear();
-      _newItemText = "";
-    });
+  Todo todo = Todo();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTodos().then((value) => setState(() {
+          todos = value;
+        }));
+  }
+
+  Future<List<Todo>> fetchTodos() async {
+    final response = await http.get('https://jsonplaceholder.typicode.com/todos');
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+
+      return json.decode(response.body).map<Todo>((item) => Todo.fromJson(item)).toList();
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
+  }
+
+  Future<Todo> addTodos(String title) async {
+    print(title);
+
+    final http.Response response = await http.post(
+      'https://jsonplaceholder.typicode.com/todos',
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode(
+        <String, Object>{
+          "userId": 1,
+          "title": title,
+        },
+      ),
+    );
+
+    if(response.statusCode == 201) {
+      print(response.body);
+      todos.insert(0, Todo.fromJson(jsonDecode(response.body)));
+      setState(() {
+        print(_newItemText);
+        _textController.clear();
+        _newItemText = "";
+      });
+    } else {
+      print(response.statusCode);
+      print(response.body);
+    }
+
+  }
+
+  void insert() {
+    if (_newItemText.isEmpty) return;
+    addTodos(_newItemText);
+
+
   }
 
   void remove(int index) {
-    todoItems.removeAt(index);
-    setState((){});
+//    todoItems.removeAt(index);
+    print(index);
+    setState(() {});
+  }
+
+  Future<Todo> fetchTodo() async {
+    final response = await http.get('https://jsonplaceholder.typicode.com/todos/1');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return Todo.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
   }
 
   @override
@@ -73,10 +147,10 @@ class TodoState extends State<TodoListWidget> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: todoItems.length,
+              itemCount: todos.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(todoItems[index]),
+                  title: Text(todos[index].title),
                   onTap: () => remove(index),
                 );
               },
