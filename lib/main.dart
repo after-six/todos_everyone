@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'models/todo.dart';
+import 'models/todo_models.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TodoModel(),
+      child:MyApp()
+    )
+  );
 }
-
-TodoState todoState = new TodoState();
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -18,35 +25,10 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class TodoState extends State<TodoListWidget> {
-  List<String> todoItems = [
-    "abababab",
-    "blablalbla",
-    "ababrbrb",
-    "blablalbla",
-    "rstbrstbrstbrstbrstb",
-    "blablbrststbalbla",
-    "blablalbla"
-  ];
-
-  String _newItemText = "";
-
-  void insert() {
-    if (_newItemText.isEmpty) return;
-
-    todoItems.insert(0, _newItemText);
-    setState(() {
-      _newItemText = "";
-    });
-  }
-
-  void remove(int index) {
-    todoItems.removeAt(index);
-    setState(() {});
-  }
-
+class TodoListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(title: Text("After todo")),
       body: Column(
@@ -59,21 +41,19 @@ class TodoState extends State<TodoListWidget> {
   }
 }
 
-class TodoItemsWidget extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => TodoItemsState();
-}
+class TodoItemsWidget extends StatelessWidget {
 
-class TodoItemsState extends State<TodoItemsWidget> {
   @override
   Widget build(BuildContext context) {
+    var todo = Provider.of<TodoModel>(context);
+
     return Expanded(
       child: ListView.builder(
-        itemCount: todoState.todoItems.length,
+        itemCount: todo.items.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(todoState.todoItems[index]),
-            onTap: () => todoState.remove(index),
+            title: Text(todo.items[index].title),
+            onTap: () => todo.remove(index),
           );
         },
       ),
@@ -81,30 +61,24 @@ class TodoItemsState extends State<TodoItemsWidget> {
   }
 }
 
-class AddTodoItemWidget extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => AddTodoItemState();
-}
-
-class AddTodoItemState extends State<AddTodoItemWidget> {
-  TextEditingController _textController = TextEditingController();
-
+class AddTodoItemWidget extends StatelessWidget {
+  final TextEditingController _textController = TextEditingController();
   TextField _textField;
 
-  void insert() {
+  void addItem(TodoModel todo) {
+    todo.add(Todo(title: _textController.text));
     _textController.clear();
-    todoState.insert();
   }
+
 
   @override
   Widget build(BuildContext context) {
+    var todo = Provider.of<TodoModel>(context);
+
     _textField = TextField(
-      onChanged: (text) => {
-        setState(() => {todoState._newItemText = text}),
-      },
       maxLength: 25,
       controller: _textController,
-      onSubmitted: (text) => insert(),
+      onSubmitted: (text) => addItem(todo),
       decoration: InputDecoration(
           counterStyle: TextStyle(fontSize: 0),
           hintText: "What do you gonna do?",
@@ -122,7 +96,7 @@ class AddTodoItemState extends State<AddTodoItemWidget> {
           Flexible(
             flex: 1,
             child: IconButton(
-              onPressed: insert,
+              onPressed: () => addItem(todo),
               icon: Icon(
                 Icons.send,
                 color: Colors.red,
@@ -133,9 +107,4 @@ class AddTodoItemState extends State<AddTodoItemWidget> {
       ),
     );
   }
-}
-
-class TodoListWidget extends StatefulWidget {
-  @override
-  State<TodoListWidget> createState() => todoState;
 }
