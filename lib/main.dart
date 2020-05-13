@@ -15,11 +15,30 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Flutter Demo', theme: ThemeData(primarySwatch: Colors.red, secondaryHeaderColor: Colors.orange), home: TodoListWidget());
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(primarySwatch: Colors.red, secondaryHeaderColor: Colors.orange),
+      home: Scaffold(
+        appBar: AppBar(title: Text("After todo")),
+        body: TodoListWidget(),
+      ),
+    );
   }
 }
 
 class TodoListWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        AddItemWidget(),
+        ItemListWidget()
+      ],
+    );
+  }
+}
+
+class AddItemWidget extends StatelessWidget {
   TodoModel todoModel;
 
   TextEditingController _textController = TextEditingController();
@@ -28,26 +47,7 @@ class TodoListWidget extends StatelessWidget {
 
   String _newItemText = "";
 
-  Future<List<Todo>> fetchTodos() async {
-    final response = await http.get('https://jsonplaceholder.typicode.com/todos');
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      print("ablaorsluboarnsoyntaonrstnyarso");
-      final todos = json.decode(response.body).map<Todo>((item) => Todo.fromJson(item)).toList();
-      print(todos);
-      todoModel.setItems(todos);
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load album');
-    }
-  }
-
   Future<Todo> addTodos(String title) async {
-    print(title);
-
     final http.Response response = await http.post(
       'https://jsonplaceholder.typicode.com/todos',
       headers: <String, String>{'Content-Type': 'application/json'},
@@ -75,27 +75,9 @@ class TodoListWidget extends StatelessWidget {
     addTodos(_newItemText);
   }
 
-  void remove(int index) {
-    todoModel.removeAt(index);
-  }
-
-  Future<Todo> fetchTodo() async {
-    final response = await http.get('https://jsonplaceholder.typicode.com/todos/1');
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return Todo.fromJson(json.decode(response.body));
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load album');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     todoModel = Provider.of<TodoModel>(context);
-    if(todoModel.isInit) fetchTodos();
 
     _textField = TextField(
       onChanged: (text) => _newItemText = text,
@@ -105,49 +87,70 @@ class TodoListWidget extends StatelessWidget {
       decoration: InputDecoration(counterStyle: TextStyle(fontSize: 0), hintText: "What do you gonna do?", border: InputBorder.none),
     );
 
-    return Scaffold(
-      appBar: AppBar(title: Text("After todo")),
-      body: Column(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.amber,
+        border: Border.all(color: Colors.grey, width: 2),
+      ),
+      child: Row(
         children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.amber,
-              border: Border.all(color: Colors.grey, width: 2),
-            ),
-            child: Row(
-              children: <Widget>[
-                Flexible(flex: 9, child: _textField),
-                Flexible(
-                  flex: 1,
-                  child: IconButton(
-                    onPressed: insert,
-                    icon: Icon(
-                      Icons.send,
-                      color: Colors.red,
-                    ),
-                  ),
-                ),
-              ],
+          Flexible(flex: 9, child: _textField),
+          Flexible(
+            flex: 1,
+            child: IconButton(
+              onPressed: insert,
+              icon: Icon(
+                Icons.send,
+                color: Colors.red,
+              ),
             ),
           ),
-          Expanded(
-            child: Consumer<TodoModel>(
-              builder: (context, todo, child) {
-                return ListView.builder(
-                  itemCount: todo.items.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(todo.items[index].title),
-                      onTap: () => todo.removeAt(index),
-                    );
-                  },
-                );
-              },
-            ),
-          )
         ],
       ),
     );
   }
 }
 
+class ItemListWidget extends StatelessWidget {
+  TodoModel todoModel;
+
+  Future<List<Todo>> fetchTodos() async {
+    final response = await http.get('https://jsonplaceholder.typicode.com/todos');
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      print("ablaorsluboarnsoyntaonrstnyarso");
+      final todos = json.decode(response.body).map<Todo>((item) => Todo.fromJson(item)).toList();
+      print(todos);
+      todoModel.setItems(todos);
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    todoModel = Provider.of<TodoModel>(context);
+    if (todoModel.isInit) fetchTodos();
+
+    return Expanded(
+      child: Consumer<TodoModel>(
+        builder: (context, todo, child) {
+          return ListView.builder(
+            itemCount: todo.items.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(todo.items[index].title),
+                onTap: () => todo.removeAt(index),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
